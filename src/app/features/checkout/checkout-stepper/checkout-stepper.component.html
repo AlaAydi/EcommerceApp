@@ -1,0 +1,28 @@
+<div class="stepper-wrapper">
+  <div class="step-item" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+    <div class="step-circle">
+      <i class="ph ph-check" *ngIf="currentStep > 1"></i>
+      <span *ngIf="currentStep <= 1">1</span>
+    </div>
+    <span class="step-label">Livraison & Adresse</span>
+  </div>
+
+  <div class="step-line" [class.completed]="currentStep > 1"></div>
+
+  <div class="step-item" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+    <div class="step-circle">
+      <i class="ph ph-check" *ngIf="currentStep > 2"></i>
+      <span *ngIf="currentStep <= 2">2</span>
+    </div>
+    <span class="step-label">Mode de Paiement</span>
+  </div>
+
+  <div class="step-line" [class.completed]="currentStep > 2"></div>
+
+  <div class="step-item" [class.active]="currentStep === 3">
+    <div class="step-circle">
+      <span>3</span>
+    </div>
+    <span class="step-label">Confirmation</span>
+  </div>
+</div>

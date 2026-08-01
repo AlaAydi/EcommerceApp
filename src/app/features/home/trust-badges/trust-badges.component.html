@@ -1,0 +1,13 @@
+<section class="trust-section">
+  <div class="container-xl trust-grid">
+    <div class="trust-card glass-card" *ngFor="let item of badges">
+      <div class="trust-icon-box">
+        <i class="ph {{ item.icon }}"></i>
+      </div>
+      <div class="trust-text">
+        <h4 class="trust-title">{{ item.title }}</h4>
+        <p class="trust-desc">{{ item.desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>

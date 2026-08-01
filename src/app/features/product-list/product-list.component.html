@@ -1,0 +1,33 @@
+<section class="catalog-section" id="catalog-section">
+  <div class="container-xl">
+    <div class="catalog-header">
+      <div>
+        <h2 class="serif-title catalog-title">Notre Collection Exclusive</h2>
+        <p class="catalog-sub">Découvrez nos pièces sélectionnées avec soin pour une esthétique moderne</p>
+      </div>
+
+      <div class="catalog-results-badge badge-chip badge-indigo">
+        {{ products().length }} {{ products().length > 1 ? 'Produits trouvés' : 'Produit trouvé' }}
+      </div>
+    </div>
+
+    <app-product-filter></app-product-filter>
+
+    <div *ngIf="products().length === 0" class="empty-catalog glass-card">
+      <i class="ph ph-ghost empty-icon"></i>
+      <h3>Aucun produit ne correspond à vos filtres</h3>
+      <p>Essayez de modifier votre recherche ou d'élargir la tranche de prix.</p>
+      <button class="btn-secondary" (click)="resetFilters()">
+        <i class="ph ph-arrow-counter-clockwise"></i> Réinitialiser tous les filtres
+      </button>
+    </div>
+
+    <div *ngIf="products().length > 0" class="product-grid">
+      <app-product-card 
+        *ngFor="let p of products()" 
+        [product]="p"
+        class="animate-fade-in"
+      ></app-product-card>
+    </div>
+  </div>
+</section>

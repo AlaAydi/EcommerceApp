@@ -1,0 +1,31 @@
+<div class="card-preview-container" [class.is-flipped]="isFlipped">
+  <!-- Front Side of Card -->
+  <div class="card-face card-front">
+    <div class="card-top">
+      <div class="chip"></div>
+      <span class="card-logo">VISA</span>
+    </div>
+    <div class="card-number">
+      {{ formattedCardNumber || '•••• •••• •••• ••••' }}
+    </div>
+    <div class="card-bottom">
+      <div class="card-holder">
+        <span class="card-label">Titulaire</span>
+        <span class="card-val">{{ holderName || 'VOTRE NOM' }}</span>
+      </div>
+      <div class="card-expires">
+        <span class="card-label">Expire</span>
+        <span class="card-val">{{ expiryDate || 'MM/AA' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Side of Card -->
+  <div class="card-face card-back">
+    <div class="magnetic-strip"></div>
+    <div class="cvc-block">
+      <span class="cvc-label">CVC / CVV</span>
+      <div class="cvc-val">{{ cvc || '•••' }}</div>
+    </div>
+  </div>
+</div>

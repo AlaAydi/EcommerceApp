@@ -1,0 +1,70 @@
+.stepper-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  z-index: 2;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-secondary);
+  border: 2px solid var(--border-light);
+  color: var(--text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  transition: all var(--transition-normal);
+}
+
+.step-item.active .step-circle {
+  background: var(--accent-primary-light);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+.step-item.completed .step-circle {
+  background: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+  color: white;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+}
+
+.step-item.active .step-label {
+  color: var(--accent-primary);
+}
+
+.step-item.completed .step-label {
+  color: var(--accent-emerald);
+}
+
+.step-line {
+  flex: 1;
+  height: 3px;
+  background: var(--border-light);
+  margin: 0 1rem;
+  margin-bottom: 1.25rem;
+  transition: background var(--transition-normal);
+}
+
+.step-line.completed {
+  background: var(--accent-emerald);
+}

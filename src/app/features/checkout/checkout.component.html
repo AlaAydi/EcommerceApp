@@ -1,0 +1,229 @@
+<div class="checkout-overlay animate-fade-in" *ngIf="isOpen">
+  <div class="checkout-container glass-card">
+    <!-- Header -->
+    <div class="checkout-header">
+      <h2 class="serif-title">Finaliser ma Commande</h2>
+      <button class="close-checkout" (click)="closeCheckout()">
+        <i class="ph ph-x"></i>
+      </button>
+    </div>
+
+    <app-checkout-stepper [currentStep]="step"></app-checkout-stepper>
+
+    <div class="checkout-grid">
+      <div class="checkout-main-form">
+        <div *ngIf="step === 1" class="step-pane animate-fade-in">
+          <h3 class="pane-title">1. Informations de Livraison</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prénom *</label>
+              <input type="text" [(ngModel)]="details.firstName" placeholder="Jean" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Nom *</label>
+              <input type="text" [(ngModel)]="details.lastName" placeholder="Dupont" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>E-mail de confirmation *</label>
+              <input type="email" [(ngModel)]="details.email" placeholder="jean.dupont@email.com" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Téléphone *</label>
+              <input type="tel" [(ngModel)]="details.phone" placeholder="+33 6 12 34 56 78" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Adresse de livraison *</label>
+            <input type="text" [(ngModel)]="details.address" placeholder="12 Rue de la Paix" class="form-input" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Code Postal *</label>
+              <input type="text" [(ngModel)]="details.postalCode" placeholder="75002" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Ville *</label>
+              <input type="text" [(ngModel)]="details.city" placeholder="Paris" class="form-input" />
+            </div>
+          </div>
+
+          <button class="btn-primary next-btn" (click)="goToStep(2)">
+            Continuer vers le Paiement <i class="ph ph-arrow-right"></i>
+          </button>
+        </div>
+
+        <div *ngIf="step === 2" class="step-pane animate-fade-in">
+          <h3 class="pane-title">2. Moyen de Paiement</h3>
+
+          <div class="payment-selector">
+            <button 
+              class="pay-tab" 
+              [class.active]="details.paymentMethod === 'card'"
+              (click)="details.paymentMethod = 'card'"
+            >
+              <i class="ph ph-credit-card"></i> Carte Bancaire
+            </button>
+            <button 
+              class="pay-tab" 
+              [class.active]="details.paymentMethod === 'apple-pay'"
+              (click)="details.paymentMethod = 'apple-pay'"
+            >
+              <i class="ph ph-device-mobile-camera"></i> Apple Pay
+            </button>
+            <button 
+              class="pay-tab" 
+              [class.active]="details.paymentMethod === 'paypal'"
+              (click)="details.paymentMethod = 'paypal'"
+            >
+              <i class="ph ph-paypal-logo"></i> PayPal
+            </button>
+          </div>
+
+          <!-- Card Payment Details -->
+          <div *ngIf="details.paymentMethod === 'card'" class="card-form-wrapper">
+            <!-- 3D Interactive Card Preview -->
+            <app-credit-card-preview
+              [cardNumber]="details.cardNumber || ''"
+              [holderName]="details.cardHolder || ''"
+              [expiryDate]="details.cardExpiry || ''"
+              [cvc]="details.cardCvc || ''"
+              [isFlipped]="isCvcFocused"
+            ></app-credit-card-preview>
+
+            <div class="form-group">
+              <label>Numéro de Carte *</label>
+              <input 
+                type="text" 
+                [(ngModel)]="details.cardNumber" 
+                placeholder="4532 •••• •••• ••••" 
+                class="form-input"
+                maxlength="19"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Nom sur la Carte *</label>
+              <input 
+                type="text" 
+                [(ngModel)]="details.cardHolder" 
+                placeholder="JEAN DUPONT" 
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date d'expiration *</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="details.cardExpiry" 
+                  placeholder="08/28" 
+                  class="form-input"
+                  maxlength="5"
+                />
+              </div>
+              <div class="form-group">
+                <label>CVC / CVV *</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="details.cardCvc" 
+                  (focus)="isCvcFocused = true"
+                  (blur)="isCvcFocused = false"
+                  placeholder="123" 
+                  class="form-input"
+                  maxlength="4"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="details.paymentMethod !== 'card'" class="alternative-pay-box">
+            <p>Vous serez redirigé vers l'interface sécurisée {{ details.paymentMethod === 'paypal' ? 'PayPal' : 'Apple Pay' }} pour valider le paiement instantané.</p>
+          </div>
+
+          <div class="step-nav-btns">
+            <button class="btn-secondary" (click)="goToStep(1)">
+              <i class="ph ph-arrow-left"></i> Retour
+            </button>
+            <button class="btn-primary flex-1" (click)="goToStep(3)">
+              Vérifier ma commande <i class="ph ph-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Order Review & Confirm -->
+        <div *ngIf="step === 3" class="step-pane animate-fade-in">
+          <h3 class="pane-title">3. Récapitulatif Final</h3>
+
+          <div class="review-box">
+            <div class="review-section">
+              <h4>Adresse de livraison</h4>
+              <p><strong>{{ details.firstName }} {{ details.lastName }}</strong></p>
+              <p>{{ details.address }}, {{ details.postalCode }} {{ details.city }}</p>
+              <p>E-mail : {{ details.email }} | Tél : {{ details.phone }}</p>
+            </div>
+
+            <div class="review-section">
+              <h4>Moyen de paiement</h4>
+              <p *ngIf="details.paymentMethod === 'card'">Carte Visa terminant par •••• {{ details.cardNumber?.slice(-4) || '8842' }}</p>
+              <p *ngIf="details.paymentMethod !== 'card'">Paiement sécurisé {{ details.paymentMethod }}</p>
+            </div>
+          </div>
+
+          <div class="step-nav-btns">
+            <button class="btn-secondary" (click)="goToStep(2)">
+              <i class="ph ph-arrow-left"></i> Modifier
+            </button>
+            <button class="btn-primary flex-1 confirm-pay-btn" (click)="submitOrder()">
+              <i class="ph ph-check-circle"></i> Payer {{ grandTotal() | number:'1.2-2' }} €
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Summary Sidebar -->
+      <div class="checkout-summary-sidebar">
+        <h4 class="sidebar-title">Articles ({{ itemCount() }})</h4>
+
+        <div class="mini-items-list">
+          <div *ngFor="let item of items()" class="mini-item">
+            <img [src]="item.product.images[0]" [alt]="item.product.name" />
+            <div class="mini-info">
+              <span class="mini-name">{{ item.product.name }}</span>
+              <span class="mini-qty">Qté : {{ item.quantity }}</span>
+            </div>
+            <span class="mini-price">{{ item.product.price * item.quantity | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+
+        <div class="sidebar-totals">
+          <div class="line">
+            <span>Sous-total</span>
+            <span>{{ subtotal() | number:'1.2-2' }} €</span>
+          </div>
+          <div class="line" *ngIf="discount() > 0">
+            <span>Réduction</span>
+            <span class="discount">- {{ discount() | number:'1.2-2' }} €</span>
+          </div>
+          <div class="line">
+            <span>Frais de port</span>
+            <span>{{ shippingFee() === 0 ? 'Gratuit' : (shippingFee() | number:'1.2-2') + ' €' }}</span>
+          </div>
+          <div class="line total-grand">
+            <span>Total TTC</span>
+            <span>{{ grandTotal() | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal Overlay -->
+  <app-order-success-modal *ngIf="showSuccessModal" (closeEvent)="onSuccessClosed()"></app-order-success-modal>
+</div>

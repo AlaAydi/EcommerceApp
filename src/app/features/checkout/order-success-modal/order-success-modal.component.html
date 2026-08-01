@@ -1,0 +1,26 @@
+<div class="success-overlay animate-fade-in" (click)="close()">
+  <div class="success-card glass-card" (click)="$event.stopPropagation()">
+    <div class="success-icon-box animate-float">
+      <i class="ph ph-check"></i>
+    </div>
+
+    <h2 class="serif-title success-title">Commande Confirmée ! 🎉</h2>
+    <p class="order-id">Numéro de commande : <strong>#AUR-{{ orderNumber }}</strong></p>
+
+    <p class="success-msg">
+      Merci pour votre achat ! Un e-mail de confirmation contenant votre facture et le lien de suivi en temps réel vous a été envoyé.
+    </p>
+
+    <div class="delivery-estimate">
+      <i class="ph ph-truck"></i>
+      <div>
+        <strong>Livraison Estimée</strong>
+        <span>Sous 24 à 48 heures ouvrées</span>
+      </div>
+    </div>
+
+    <button class="btn-primary continue-btn" (click)="close()">
+      <i class="ph ph-storefront"></i> Continuer mes Achats
+    </button>
+  </div>
+</div>

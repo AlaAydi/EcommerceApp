@@ -1,0 +1,95 @@
+<div class="tabs-container glass-card">
+  <!-- Tabs Navigation Header -->
+  <div class="tabs-header">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'desc'" 
+      (click)="activeTab = 'desc'"
+    >
+      <i class="ph ph-article"></i> Description Complète
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'specs'" 
+      (click)="activeTab = 'specs'"
+    >
+      <i class="ph ph-list-checks"></i> Spécifications Techniques
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'reviews'" 
+      (click)="activeTab = 'reviews'"
+    >
+      <i class="ph ph-star"></i> Avis Clients ({{ reviews?.length || 0 }})
+    </button>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="tab-body">
+    <!-- Description Tab -->
+    <div *ngIf="activeTab === 'desc'" class="tab-pane animate-fade-in">
+      <h3 class="pane-title">Conception & Matériaux Nobles</h3>
+      <p class="pane-text">{{ description }}</p>
+      <div class="features-list">
+        <div class="feature-card">
+          <i class="ph ph-sparkle"></i>
+          <h4>Finition Haute Qualité</h4>
+          <p>Conçu avec une attention particulière portée à chaque détail d'assemblage.</p>
+        </div>
+        <div class="feature-card">
+          <i class="ph ph-leaf"></i>
+          <h4>Éco-Conception</h4>
+          <p>Utilisation de matériaux durables à faible empreinte carbone.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specs Tab -->
+    <div *ngIf="activeTab === 'specs'" class="tab-pane animate-fade-in">
+      <h3 class="pane-title">Caractéristiques Générales</h3>
+      <div class="specs-grid" *ngIf="specs && specs.length > 0">
+        <div class="spec-row" *ngFor="let s of specs">
+          <span class="spec-label">{{ s.label }}</span>
+          <span class="spec-value">{{ s.value }}</span>
+        </div>
+      </div>
+      <p *ngIf="!specs || specs.length === 0" class="empty-tab-text">
+        Aucune spécification technique supplémentaire enregistrée pour ce produit.
+      </p>
+    </div>
+
+    <!-- Reviews Tab -->
+    <div *ngIf="activeTab === 'reviews'" class="tab-pane animate-fade-in">
+      <div class="reviews-summary">
+        <div class="rating-box">
+          <span class="big-score">{{ rating | number:'1.1-1' }}</span>
+          <app-star-rating [rating]="rating" [showValue]="false"></app-star-rating>
+          <span class="total-reviews">Basé sur {{ reviews?.length || 0 }} avis vérifiés</span>
+        </div>
+      </div>
+
+      <div class="reviews-list" *ngIf="reviews && reviews.length > 0">
+        <div class="review-card" *ngFor="let rev of reviews">
+          <div class="rev-header">
+            <div class="rev-user">
+              <div class="avatar">{{ rev.userName.charAt(0) }}</div>
+              <div>
+                <strong class="user-name">{{ rev.userName }}</strong>
+                <span class="rev-date">{{ rev.date }}</span>
+              </div>
+            </div>
+            <app-star-rating [rating]="rev.rating" [showValue]="false"></app-star-rating>
+          </div>
+          <p class="rev-comment">{{ rev.comment }}</p>
+          <span *ngIf="rev.verifiedPurchase" class="badge-chip badge-emerald">
+            <i class="ph ph-check"></i> Achat Vérifié
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="!reviews || reviews.length === 0" class="empty-reviews">
+        <p>Soyez le premier à donner votre avis sur ce produit !</p>
+      </div>
+    </div>
+  </div>
+</div>

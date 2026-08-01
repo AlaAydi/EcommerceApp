@@ -1,0 +1,130 @@
+<div class="product-detail-page container-xl animate-fade-in" *ngIf="product">
+  <!-- Back Button & Breadcrumbs -->
+  <div class="detail-nav-top">
+    <button class="back-btn" (click)="goBack()">
+      <i class="ph ph-arrow-left"></i> Retour au catalogue
+    </button>
+    <div class="breadcrumbs">
+      <span>Accueil</span>
+      <i class="ph ph-caret-right"></i>
+      <span>{{ product.category | titlecase }}</span>
+      <i class="ph ph-caret-right"></i>
+      <span class="active-crumb">{{ product.name }}</span>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="gallery-col">
+      <app-product-gallery 
+        [images]="product.images" 
+        [productName]="product.name"
+      ></app-product-gallery>
+    </div>
+
+    <div class="info-col">
+      <div class="category-tag">{{ product.category | uppercase }}</div>
+      <h1 class="product-title serif-title">{{ product.name }}</h1>
+      <p class="product-subtitle">{{ product.subtitle }}</p>
+
+      <div class="rating-row">
+        <app-star-rating [rating]="product.rating" [count]="product.reviewCount"></app-star-rating>
+        <span class="stock-badge badge-chip badge-emerald">
+          <i class="ph ph-check-circle"></i> En Stock (Expédition sous 24h)
+        </span>
+      </div>
+
+
+      <div class="price-box">
+        <span class="price-main">{{ product.price | number:'1.2-2' }} €</span>
+        <span *ngIf="product.originalPrice" class="price-original">
+          {{ product.originalPrice | number:'1.2-2' }} €
+        </span>
+        <span *ngIf="product.discountPercentage" class="discount-pill">
+          -{{ product.discountPercentage }}% Économisés
+        </span>
+      </div>
+
+      <p class="short-desc">{{ product.description }}</p>
+
+      <div *ngIf="product.colors && product.colors.length > 0" class="option-block">
+        <label class="block-label">Couleur sélectionnée : <strong>{{ selectedColor?.name }}</strong></label>
+        <div class="colors-flex">
+          <button 
+            *ngFor="let c of product.colors" 
+            class="color-btn"
+            [class.selected]="selectedColor?.hex === c.hex"
+            [style.background]="c.hex"
+            [title]="c.name"
+            (click)="selectedColor = c"
+          >
+            <i *ngIf="selectedColor?.hex === c.hex" class="ph ph-check"></i>
+          </button>
+        </div>
+      </div>
+
+   
+      <div *ngIf="product.sizes && product.sizes.length > 0" class="option-block">
+        <label class="block-label">Taille :</label>
+        <div class="sizes-flex">
+          <button 
+            *ngFor="let s of product.sizes" 
+            class="size-btn"
+            [class.selected]="selectedSize === s"
+            (click)="selectedSize = s"
+          >
+            {{ s }}
+          </button>
+        </div>
+      </div>
+
+     
+      <div class="actions-row">
+        <div class="qty-picker">
+          <button class="qty-btn" (click)="quantity > 1 && quantity = quantity - 1">
+            <i class="ph ph-minus"></i>
+          </button>
+          <span class="qty-number">{{ quantity }}</span>
+          <button class="qty-btn" (click)="quantity = quantity + 1">
+            <i class="ph ph-plus"></i>
+          </button>
+        </div>
+
+        <button class="btn-primary buy-btn" (click)="addToCart()">
+          <i class="ph ph-shopping-bag-open"></i>
+          Ajouter au Panier ({{ product.price * quantity | number:'1.2-2' }} €)
+        </button>
+
+        <button 
+          class="btn-icon wish-btn" 
+          [class.active]="isWishlisted()" 
+          (click)="toggleWishlist()"
+          title="Favoris"
+        >
+          <i class="ph" [class.ph-heart-fill]="isWishlisted()" [class.ph-heart]="!isWishlisted()"></i>
+        </button>
+      </div>
+
+      <div class="guarantees-mini">
+        <div class="g-item">
+          <i class="ph ph-truck"></i>
+          <span>Expédié en 24h & Livraison suivie</span>
+        </div>
+        <div class="g-item">
+          <i class="ph ph-arrow-counter-clockwise"></i>
+          <span>Retours gratuits pendant 30 jours</span>
+        </div>
+        <div class="g-item">
+          <i class="ph ph-shield-check"></i>
+          <span>Garantie officielle 2 ans</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-product-tabs
+    [description]="product.description"
+    [specs]="product.specs"
+    [reviews]="product.reviews"
+    [rating]="product.rating"
+  ></app-product-tabs>
+</div>

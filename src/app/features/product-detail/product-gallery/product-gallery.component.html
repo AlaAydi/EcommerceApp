@@ -1,0 +1,27 @@
+<div class="gallery-wrapper">
+  <!-- Main Display Image with Zoom -->
+  <div class="main-display-box" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
+    <img 
+      [src]="activeImage" 
+      [alt]="productName" 
+      class="main-img" 
+      [style.transform-origin]="zoomOrigin"
+      [class.zoomed]="isZoomed"
+    />
+    <div class="zoom-hint">
+      <i class="ph ph-magnifying-glass-plus"></i> Survoler pour zoomer
+    </div>
+  </div>
+
+  <!-- Thumbnails Carousel Strip -->
+  <div class="thumb-strip" *ngIf="images.length > 1">
+    <button 
+      *ngFor="let img of images; let i = index" 
+      class="thumb-item" 
+      [class.active]="activeImage === img"
+      (click)="selectImage(img)"
+    >
+      <img [src]="img" [alt]="productName + ' vue ' + (i+1)" />
+    </button>
+  </div>
+</div>

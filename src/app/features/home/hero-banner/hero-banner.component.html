@@ -1,0 +1,75 @@
+<section class="hero-banner-container">
+  <div class="container-xl hero-grid">
+    <!-- Left Hero Text & CTA -->
+    <div class="hero-text-content">
+      <div class="hero-chip animate-fade-in">
+        <span class="badge-chip badge-indigo">
+          <i class="ph ph-sparkle"></i> Collection Été 2026
+        </span>
+        <span class="chip-text">Inspiration Minimaliste & Luxe</span>
+      </div>
+
+      <h1 class="serif-title hero-title animate-fade-in">
+        L'Élégance Épurée<br />
+        <span class="highlight-gradient">D'une Nouvelle Ère.</span>
+      </h1>
+
+      <p class="hero-subtitle animate-fade-in">
+        Découvrez notre sélection exclusive d'objets d'exception, de technologies de pointe et d'accessoires haute couture conçus pour sublimer votre quotidien.
+      </p>
+
+      <div class="hero-cta-group animate-fade-in">
+        <button class="btn-primary hero-btn" (click)="scrollToProducts()">
+          <i class="ph ph-bag"></i> Découvrir le Catalogue
+        </button>
+        <button class="btn-secondary hero-btn" (click)="selectCategory('electronics')">
+          <i class="ph ph-lightning"></i> High-Tech Premium
+        </button>
+      </div>
+
+      <div class="hero-stats animate-fade-in">
+        <div class="stat-item">
+          <strong class="stat-number">15K+</strong>
+          <span class="stat-label">Clients Satisfaits</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <strong class="stat-number">4.9/5</strong>
+          <span class="stat-label">Note Moyenne</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <strong class="stat-number">24/48h</strong>
+          <span class="stat-label">Expédition Express</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-showcase">
+      <div class="showcase-card glass-card animate-float">
+        <div class="showcase-badge">En Vedette</div>
+        <img 
+          src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop" 
+          alt="Aura Studio Headphones" 
+          class="showcase-img"
+        />
+
+        <div class="showcase-info">
+          <div class="showcase-meta">
+            <span class="showcase-cat">Électronique Luxe</span>
+            <h3 class="showcase-name">Aura Studio Wireless</h3>
+          </div>
+          <div class="showcase-price-row">
+            <span class="showcase-price">289.00 €</span>
+            <button class="showcase-buy-btn" (click)="quickAddFeatured()" title="Ajouter au Panier">
+              <i class="ph ph-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ambient-glow glow-1"></div>
+      <div class="ambient-glow glow-2"></div>
+    </div>
+  </div>
+</section>
