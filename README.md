@@ -1,59 +1,104 @@
-# ECommerceApp
+# 🛒 EcommerceApp
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.15.
+Application e-commerce développée avec **Angular 19**, utilisant des composants standalone modernes. Le projet couvre le parcours d'achat complet : découverte des produits, fiche produit détaillée, panier, wishlist et tunnel de commande.
 
-## Development server
+## ✨ Fonctionnalités
 
-To start a local development server, run:
+- **Page d'accueil** : bannière héro et badges de confiance
+- **Liste de produits** : filtrage des produits, cartes produit
+- **Fiche produit** : galerie d'images, onglets d'information, système de notation par étoiles
+- **Panier** : tiroir latéral (cart drawer), gestion des articles, service de panier dédié
+- **Wishlist** : liste de souhaits persistée via un service dédié
+- **Recherche & navigation** : barre de recherche, navigation par catégories dans le header
+- **Tunnel de commande (checkout)** : stepper multi-étapes, aperçu de carte bancaire, modal de confirmation de commande
+- **Notifications** : système de toasts pour les retours utilisateur
+
+## 🧱 Stack technique
+
+- [Angular](https://angular.dev/) 19 (composants standalone)
+- TypeScript 5.7
+- RxJS
+- Karma / Jasmine pour les tests unitaires
+
+## 📁 Structure du projet
+
+```
+src/app/
+├── core/                     # Logique métier partagée
+│   ├── models/                # Modèles (Product, Cart)
+│   └── services/               # CartService, ProductService, WishlistService, NotificationService
+├── features/                 # Modules fonctionnels (par page)
+│   ├── home/                   # Page d'accueil (hero-banner, trust-badges)
+│   ├── product-list/           # Liste de produits + filtres
+│   ├── product-detail/         # Fiche produit (galerie, onglets)
+│   └── checkout/                # Tunnel de commande (stepper, carte bancaire, succès)
+└── shared/components/        # Composants réutilisables
+    ├── header/ (search-bar, category-nav)
+    ├── footer/
+    ├── cart-drawer/ , cart-item/
+    ├── product-card/
+    ├── quick-view-modal/
+    ├── star-rating/
+    └── toast-notifications/
+```
+
+## 🚀 Installation
+
+Prérequis : [Node.js](https://nodejs.org/) et [Angular CLI](https://angular.dev/tools/cli).
+
+```bash
+git clone https://github.com/AlaAydi/EcommerceApp.git
+cd EcommerceApp
+npm install
+```
+
+## 💻 Lancer le projet en local
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Ouvrez ensuite votre navigateur à l'adresse [http://localhost:4200](http://localhost:4200). L'application se recharge automatiquement à chaque modification du code source.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## 🏗️ Build
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Les fichiers compilés sont générés dans le dossier `dist/`, optimisés pour la production par défaut.
 
-## Running unit tests
+## 🧪 Tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Tests unitaires avec [Karma](https://karma-runner.github.io) :
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## 🧩 Génération de composants
 
-For end-to-end (e2e) testing, run:
+Grâce à l'Angular CLI :
 
 ```bash
-ng e2e
+ng generate component nom-du-composant
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Pour voir toutes les commandes disponibles (components, directives, pipes...) :
 
-## Additional Resources
+```bash
+ng generate --help
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 📚 Ressources
+
+- [Documentation Angular](https://angular.dev/)
+- [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli)
+
+## 👤 Auteur
+
+**AlaAydi**
+
+## 📄 Licence
+
+Projet à but éducatif / personnel. Ajoutez une licence si vous souhaitez le publier officiellement.
