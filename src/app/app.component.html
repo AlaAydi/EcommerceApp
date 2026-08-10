@@ -1,17 +1,24 @@
 <!-- Main App Header -->
 <app-header></app-header>
 
-<!-- Dynamic Main View (Home Catalog OR Dedicated Product Detail Page) -->
+<!-- Dynamic Main View (Home Catalog OR Dedicated Product Detail Page OR Admin Dashboard) -->
 <main class="main-content">
-  <app-home *ngIf="!selectedProduct()"></app-home>
-  <app-product-detail *ngIf="selectedProduct()"></app-product-detail>
+  <ng-container *ngIf="!isAdminView()">
+    <app-home *ngIf="!selectedProduct()"></app-home>
+    <app-product-detail *ngIf="selectedProduct()"></app-product-detail>
+  </ng-container>
+
+  <app-admin-dashboard *ngIf="isAdminView()"></app-admin-dashboard>
 </main>
 
 <!-- Footer -->
-<app-footer></app-footer>
+<app-footer *ngIf="!isAdminView()"></app-footer>
 
 <!-- Floating & Modal Overlays -->
 <app-cart-drawer></app-cart-drawer>
+<app-wishlist-drawer></app-wishlist-drawer>
+<app-auth-modal></app-auth-modal>
+<app-register-success-modal></app-register-success-modal>
 <app-quick-view-modal></app-quick-view-modal>
 <app-checkout [isOpen]="isCheckoutOpen" (closeEvent)="isCheckoutOpen = false"></app-checkout>
 <app-toast-notifications></app-toast-notifications>
