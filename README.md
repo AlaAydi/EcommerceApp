@@ -1,104 +1,149 @@
 # 🛒 EcommerceApp
 
-Application e-commerce développée avec **Angular 19**, utilisant des composants standalone modernes. Le projet couvre le parcours d'achat complet : découverte des produits, fiche produit détaillée, panier, wishlist et tunnel de commande.
+Application e-commerce développée avec **Angular** et **Firebase**, comprenant deux espaces distincts : un espace **Administrateur** et un espace **Utilisateur**.
+
+## 📋 Description
+
+EcommerceApp est une plateforme de vente en ligne permettant aux utilisateurs de parcourir et acheter des produits, tandis que les administrateurs disposent d'un panneau de gestion complet pour gérer les produits et les utilisateurs de la plateforme.
 
 ## ✨ Fonctionnalités
 
-- **Page d'accueil** : bannière héro et badges de confiance
-- **Liste de produits** : filtrage des produits, cartes produit
-- **Fiche produit** : galerie d'images, onglets d'information, système de notation par étoiles
-- **Panier** : tiroir latéral (cart drawer), gestion des articles, service de panier dédié
-- **Wishlist** : liste de souhaits persistée via un service dédié
-- **Recherche & navigation** : barre de recherche, navigation par catégories dans le header
-- **Tunnel de commande (checkout)** : stepper multi-étapes, aperçu de carte bancaire, modal de confirmation de commande
-- **Notifications** : système de toasts pour les retours utilisateur
+### 👤 Espace Utilisateur
+- Inscription et connexion (authentification Firebase)
+- Consultation du catalogue de produits
+- Recherche et filtrage des produits
+- Ajout de produits au panier
+- Gestion du panier (modification, suppression d'articles)
+- Passage de commande
+- Consultation du profil utilisateur
 
-## 🧱 Stack technique
+### 🔧 Espace Administrateur
+- Authentification sécurisée (rôle admin)
+- **Gestion des produits (CRUD)**
+  - Ajouter un nouveau produit
+  - Modifier un produit existant
+  - Supprimer un produit
+  - Consulter la liste des produits
+- **Gestion des utilisateurs (CRUD)**
+  - Ajouter un utilisateur
+  - Modifier les informations d'un utilisateur
+  - Supprimer un utilisateur
+  - Consulter la liste des utilisateurs
+- Tableau de bord administrateur
 
-- [Angular](https://angular.dev/) 19 (composants standalone)
-- TypeScript 5.7
-- RxJS
-- Karma / Jasmine pour les tests unitaires
+## 🛠️ Technologies utilisées
 
-## 📁 Structure du projet
+- **Frontend** : [Angular](https://angular.dev/) (v19)
+- **Backend / Base de données** : [Firebase](https://firebase.google.com/)
+  - Firebase Authentication (gestion des utilisateurs et des rôles)
+  - Firestore Database (stockage des produits et des utilisateurs)
+  - Firebase Hosting *(optionnel, pour le déploiement)*
+- **Langage** : TypeScript
+- **Style** : CSS / SCSS
 
-```
-src/app/
-├── core/                     # Logique métier partagée
-│   ├── models/                # Modèles (Product, Cart)
-│   └── services/               # CartService, ProductService, WishlistService, NotificationService
-├── features/                 # Modules fonctionnels (par page)
-│   ├── home/                   # Page d'accueil (hero-banner, trust-badges)
-│   ├── product-list/           # Liste de produits + filtres
-│   ├── product-detail/         # Fiche produit (galerie, onglets)
-│   └── checkout/                # Tunnel de commande (stepper, carte bancaire, succès)
-└── shared/components/        # Composants réutilisables
-    ├── header/ (search-bar, category-nav)
-    ├── footer/
-    ├── cart-drawer/ , cart-item/
-    ├── product-card/
-    ├── quick-view-modal/
-    ├── star-rating/
-    └── toast-notifications/
-```
+## 📦 Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé :
+
+- [Node.js](https://nodejs.org/) (v18 ou supérieur recommandé)
+- [Angular CLI](https://angular.dev/tools/cli) (`npm install -g @angular/cli`)
+- Un compte [Firebase](https://console.firebase.google.com/)
 
 ## 🚀 Installation
 
-Prérequis : [Node.js](https://nodejs.org/) et [Angular CLI](https://angular.dev/tools/cli).
+1. **Cloner le dépôt**
+   ```bash
+   git clone https://github.com/AlaAydi/EcommerceApp.git
+   cd EcommerceApp
+   ```
 
-```bash
-git clone https://github.com/AlaAydi/EcommerceApp.git
-cd EcommerceApp
-npm install
-```
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   ```
 
-## 💻 Lancer le projet en local
+3. **Configurer Firebase**
 
-```bash
-ng serve
-```
+   Créez un projet sur la [console Firebase](https://console.firebase.google.com/), activez **Authentication** et **Firestore Database**, puis récupérez votre configuration Firebase et ajoutez-la dans le fichier d'environnement de votre projet (`src/environments/environment.ts`) :
+   ```typescript
+   export const environment = {
+     production: false,
+     firebaseConfig: {
+       apiKey: "VOTRE_API_KEY",
+       authDomain: "VOTRE_AUTH_DOMAIN",
+       projectId: "VOTRE_PROJECT_ID",
+       storageBucket: "VOTRE_STORAGE_BUCKET",
+       messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+       appId: "VOTRE_APP_ID"
+     }
+   };
+   ```
 
-Ouvrez ensuite votre navigateur à l'adresse [http://localhost:4200](http://localhost:4200). L'application se recharge automatiquement à chaque modification du code source.
+4. **Lancer le serveur de développement**
+   ```bash
+   ng serve
+   ```
+
+   Ouvrez votre navigateur à l'adresse `http://localhost:4200/`. L'application se recharge automatiquement à chaque modification des fichiers sources.
 
 ## 🏗️ Build
+
+Pour générer une version de production de l'application :
 
 ```bash
 ng build
 ```
 
-Les fichiers compilés sont générés dans le dossier `dist/`, optimisés pour la production par défaut.
+Les fichiers compilés seront disponibles dans le dossier `dist/`.
 
 ## 🧪 Tests
 
-Tests unitaires avec [Karma](https://karma-runner.github.io) :
+Pour exécuter les tests unitaires (via [Karma](https://karma-runner.github.io)) :
 
 ```bash
 ng test
 ```
 
-## 🧩 Génération de composants
+## 📁 Structure du projet
 
-Grâce à l'Angular CLI :
-
-```bash
-ng generate component nom-du-composant
+```
+EcommerceApp/
+├── src/
+│   ├── app/
+│   │   ├── admin/          # Composants de l'espace administrateur
+│   │   ├── user/           # Composants de l'espace utilisateur
+│   │   ├── auth/           # Authentification (login, register)
+│   │   ├── services/       # Services (produits, utilisateurs, panier...)
+│   │   └── shared/         # Composants partagés
+│   ├── environments/       # Configuration Firebase
+│   └── assets/             # Images, styles, fichiers statiques
+├── angular.json
+├── package.json
+└── README.md
 ```
 
-Pour voir toutes les commandes disponibles (components, directives, pipes...) :
+## 👥 Rôles
 
-```bash
-ng generate --help
-```
+| Rôle | Accès |
+|------|-------|
+| **Admin** | Gestion complète des produits et des utilisateurs (CRUD) |
+| **User** | Consultation des produits, panier, commandes |
 
-## 📚 Ressources
+## 🤝 Contribution
 
-- [Documentation Angular](https://angular.dev/)
-- [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli)
+Les contributions sont les bienvenues ! Pour contribuer :
+
+1. Forkez le projet
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/ma-fonctionnalite`)
+3. Commitez vos modifications (`git commit -m 'Ajout de ma fonctionnalité'`)
+4. Poussez la branche (`git push origin feature/ma-fonctionnalite`)
+5. Ouvrez une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 👤 Auteur
 
 **AlaAydi**
-
-## 📄 Licence
-
-Projet à but éducatif / personnel. Ajoutez une licence si vous souhaitez le publier officiellement.
+- GitHub : [@AlaAydi](https://github.com/AlaAydi)
