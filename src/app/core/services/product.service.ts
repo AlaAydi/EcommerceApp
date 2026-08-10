@@ -289,4 +289,35 @@ export class ProductService {
   setSelectedProduct(product: Product | null) {
     this.selectedProduct.set(product);
   }
+
+  addProduct(newProd: Omit<Product, 'id'>): Product {
+    const created: Product = {
+      ...newProd,
+      id: 'prod-' + Date.now()
+    };
+    this.products.update(list => [created, ...list]);
+    this.saveProductsToStorage();
+    return created;
+  }
+
+  updateProduct(id: string, changes: Partial<Product>) {
+    this.products.update(list => 
+      list.map(p => p.id === id ? { ...p, ...changes } : p)
+    );
+    this.saveProductsToStorage();
+  }
+
+  deleteProduct(id: string) {
+    this.products.update(list => list.filter(p => p.id !== id));
+    if (this.selectedProduct()?.id === id) {
+      this.selectedProduct.set(null);
+    }
+    this.saveProductsToStorage();
+  }
+
+  private saveProductsToStorage() {
+    try {
+      localStorage.setItem('aura_custom_products', JSON.stringify(this.products()));
+    } catch (e) {}
+  }
 }
