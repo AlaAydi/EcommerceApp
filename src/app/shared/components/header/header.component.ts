@@ -5,6 +5,8 @@ import { CategoryNavComponent } from './category-nav/category-nav.component';
 import { CartService } from '../../../core/services/cart.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
 import { ProductService } from '../../../core/services/product.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { AdminService } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-header',
@@ -21,17 +23,21 @@ import { ProductService } from '../../../core/services/product.service';
 
     <header class="main-header" [class.is-scrolled]="isScrolled">
       <div class="container-xl header-inner">
+        <!-- Logo -->
         <a href="javascript:void(0)" (click)="goHome()" class="brand-logo">
           <span class="serif-title brand-name">JO</span>
           <span class="brand-sub">LUXE</span>
           <span class="brand-dot"></span>
         </a>
 
+        <!-- Search Bar -->
         <div class="header-search">
           <app-search-bar></app-search-bar>
         </div>
 
+        <!-- Action Icons -->
         <div class="header-actions">
+          <!-- Wishlist Heart Button -->
           <button class="action-btn" (click)="openWishlist()" title="Liste de souhaits">
             <i class="ph ph-heart action-icon"></i>
             <span *ngIf="wishlistCount() > 0" class="badge-count badge-heart">
@@ -39,6 +45,7 @@ import { ProductService } from '../../../core/services/product.service';
             </span>
           </button>
 
+          <!-- Cart Button -->
           <button class="action-btn cart-trigger" (click)="openCart()" title="Voir le panier">
             <i class="ph ph-shopping-bag action-icon"></i>
             <span *ngIf="cartCount() > 0" class="badge-count badge-cart pulse-badge-active">
@@ -46,12 +53,43 @@ import { ProductService } from '../../../core/services/product.service';
             </span>
           </button>
 
-          <div class="user-profile-badge" title="Mon Compte">
-            <i class="ph ph-user action-icon"></i>
+          <!-- User Account Badge / Dropdown -->
+          <div class="user-menu-wrapper">
+            <button 
+              class="action-btn user-profile-badge" 
+              [class.user-logged]="isLoggedIn()"
+              (click)="handleUserClick()" 
+              title="Mon Compte / Admin"
+            >
+              <i class="ph" [class.ph-user]="!isLoggedIn()" [class.ph-user-check]="isLoggedIn()"></i>
+            </button>
+
+            <!-- Logged In User Dropdown -->
+            <div class="user-dropdown" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
+              <div class="user-info">
+                <span class="user-name">{{ currentUser()?.displayName || 'Client Aura' }}</span>
+                <span class="user-email">{{ currentUser()?.email }}</span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item admin-item" (click)="openAdmin(); showUserMenu = false;">
+                <i class="ph ph-shield-check"></i> Espace Administration
+              </button>
+              <button class="dropdown-item" (click)="openWishlist(); showUserMenu = false;">
+                <i class="ph ph-heart"></i> Mes Favoris ({{ wishlistCount() }})
+              </button>
+              <button class="dropdown-item" (click)="openCart(); showUserMenu = false;">
+                <i class="ph ph-shopping-bag"></i> Mon Panier ({{ cartCount() }})
+              </button>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item logout-item" (click)="logout()">
+                <i class="ph ph-sign-out"></i> Se déconnecter
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Category Navbar -->
       <div class="header-categories-bar">
         <div class="container-xl">
           <app-category-nav></app-category-nav>
@@ -158,7 +196,7 @@ import { ProductService } from '../../../core/services/product.service';
       gap: 0.75rem;
     }
 
-    .action-btn, .user-profile-badge {
+    .action-btn {
       position: relative;
       width: 44px;
       height: 44px;
@@ -174,11 +212,17 @@ import { ProductService } from '../../../core/services/product.service';
       cursor: pointer;
     }
 
-    .action-btn:hover, .user-profile-badge:hover {
+    .action-btn:hover {
       background: var(--accent-primary-light);
       color: var(--accent-primary);
       border-color: rgba(79, 70, 229, 0.3);
       transform: translateY(-2px);
+    }
+
+    .action-btn.user-logged {
+      background: var(--accent-primary-light);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
     }
 
     .action-icon {
@@ -210,6 +254,81 @@ import { ProductService } from '../../../core/services/product.service';
       background: var(--accent-rose);
     }
 
+    .user-menu-wrapper {
+      position: relative;
+    }
+
+    .user-dropdown {
+      position: absolute;
+      top: 120%;
+      right: 0;
+      width: 230px;
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-light);
+      padding: 0.75rem 0;
+      z-index: 100;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .user-info {
+      padding: 0.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .user-name {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+    .user-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 0.5rem 0;
+    }
+
+    .dropdown-item {
+      width: 100%;
+      padding: 0.55rem 1rem;
+      border: none;
+      background: transparent;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dropdown-item:hover {
+      background: var(--bg-surface-secondary);
+      color: var(--accent-primary);
+    }
+
+    .dropdown-item.admin-item {
+      color: var(--accent-primary);
+      font-weight: 700;
+      background: var(--accent-primary-light);
+    }
+
+    .dropdown-item.logout-item {
+      color: var(--accent-rose);
+    }
+    .dropdown-item.logout-item:hover {
+      background: var(--accent-rose-light);
+    }
+
     .header-categories-bar {
       border-top: 1px solid rgba(226, 232, 240, 0.6);
       background: rgba(255, 255, 255, 0.5);
@@ -219,6 +338,10 @@ import { ProductService } from '../../../core/services/product.service';
       .ann-link, .header-search {
         display: none;
       }
+      .header-inner {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+      }
     }
   `]
 })
@@ -226,15 +349,28 @@ export class HeaderComponent {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private productService = inject(ProductService);
+  private authService = inject(AuthService);
+  private adminService = inject(AdminService);
 
   isScrolled = false;
+  showUserMenu = false;
 
   cartCount = this.cartService.itemCount;
   wishlistCount = this.wishlistService.count;
+  isLoggedIn = this.authService.isLoggedIn;
+  currentUser = this.authService.currentUser;
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
     this.isScrolled = window.scrollY > 20;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-menu-wrapper')) {
+      this.showUserMenu = false;
+    }
   }
 
   openCart() {
@@ -242,9 +378,31 @@ export class HeaderComponent {
   }
 
   openWishlist() {
+    this.wishlistService.openDrawer();
+  }
+
+  handleUserClick() {
+    if (this.isLoggedIn()) {
+      this.showUserMenu = !this.showUserMenu;
+    } else {
+      this.authService.openModal('login');
+    }
+  }
+
+  openAdmin() {
+    this.showUserMenu = false;
+    this.adminService.setAdminView(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  logout() {
+    this.showUserMenu = false;
+    this.adminService.setAdminView(false);
+    this.authService.logout();
   }
 
   goHome() {
+    this.adminService.setAdminView(false);
     this.productService.setSelectedProduct(null);
     this.productService.resetFilters();
   }
