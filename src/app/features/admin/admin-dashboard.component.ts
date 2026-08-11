@@ -5,7 +5,8 @@ import { ProductService } from '../../core/services/product.service';
 import { AdminService } from '../../core/services/admin.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Product, CategoryType } from '../../core/models/product.model';
-import { UserOrder } from '../../core/models/user.model';
+import { UserOrder, UserProfile, UserRole } from '../../core/models/user.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -30,30 +31,30 @@ import { UserOrder } from '../../core/models/user.model';
       <div class="container-xl admin-main">
         <!-- Sidebar Navigation Tabs -->
         <nav class="admin-nav-tabs">
-          <button 
-            class="nav-tab-btn" 
-            [class.active]="activeTab === 'overview'" 
+          <button
+            class="nav-tab-btn"
+            [class.active]="activeTab === 'overview'"
             (click)="activeTab = 'overview'"
           >
             <i class="ph ph-chart-line-up"></i> Vue d'ensemble
           </button>
-          <button 
-            class="nav-tab-btn" 
-            [class.active]="activeTab === 'products'" 
+          <button
+            class="nav-tab-btn"
+            [class.active]="activeTab === 'products'"
             (click)="activeTab = 'products'"
           >
             <i class="ph ph-package"></i> Produits ({{ products().length }})
           </button>
-          <button 
-            class="nav-tab-btn" 
-            [class.active]="activeTab === 'orders'" 
+          <button
+            class="nav-tab-btn"
+            [class.active]="activeTab === 'orders'"
             (click)="activeTab = 'orders'"
           >
             <i class="ph ph-receipt"></i> Commandes ({{ orders().length }})
           </button>
-          <button 
-            class="nav-tab-btn" 
-            [class.active]="activeTab === 'users'" 
+          <button
+            class="nav-tab-btn"
+            [class.active]="activeTab === 'users'"
             (click)="activeTab = 'users'"
           >
             <i class="ph ph-users"></i> Utilisateurs ({{ users().length }})
@@ -129,10 +130,10 @@ import { UserOrder } from '../../core/models/user.model';
         <div class="tab-pane" *ngIf="activeTab === 'products'">
           <div class="crud-toolbar">
             <div class="search-filter-group">
-              <input 
-                type="text" 
-                class="admin-search-input" 
-                placeholder="Rechercher un produit..." 
+              <input
+                type="text"
+                class="admin-search-input"
+                placeholder="Rechercher un produit..."
                 [(ngModel)]="productSearch"
               />
               <select class="admin-select" [(ngModel)]="selectedCategory">
@@ -226,9 +227,9 @@ import { UserOrder } from '../../core/models/user.model';
                   </td>
                   <td class="font-bold text-accent">{{ ord.grandTotal | number:'1.2-2' }} €</td>
                   <td>
-                    <select 
-                      class="admin-select select-sm" 
-                      [ngModel]="ord.status" 
+                    <select
+                      class="admin-select select-sm"
+                      [ngModel]="ord.status"
                       (ngModelChange)="updateOrderStatus(ord.id, $event)"
                     >
                       <option value="confirmed">Confirmée</option>
@@ -245,6 +246,20 @@ import { UserOrder } from '../../core/models/user.model';
 
         <!-- TAB 4: USERS -->
         <div class="tab-pane" *ngIf="activeTab === 'users'">
+          <div class="crud-toolbar">
+            <div class="search-filter-group">
+              <input
+                type="text"
+                class="admin-search-input"
+                placeholder="Rechercher un utilisateur..."
+                [(ngModel)]="userSearch"
+              />
+            </div>
+            <button class="btn-primary" (click)="openAddUserModal()">
+              <i class="ph ph-user-plus"></i> Ajouter un utilisateur
+            </button>
+          </div>
+
           <div class="table-responsive glass-card">
             <table class="admin-table">
               <thead>
@@ -254,18 +269,30 @@ import { UserOrder } from '../../core/models/user.model';
                   <th>Adresse E-mail</th>
                   <th>Date d'Inscription</th>
                   <th>Rôle</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let usr of users()">
+                <tr *ngFor="let usr of filteredUsers">
                   <td class="text-subtle">{{ usr.uid.substring(0, 10) }}...</td>
                   <td class="font-bold">{{ usr.displayName }}</td>
                   <td>{{ usr.email }}</td>
                   <td>{{ usr.createdAt | date:'dd/MM/yyyy' }}</td>
                   <td>
-                    <span class="role-badge" [class.admin-role]="usr.email.includes('admin')">
-                      {{ usr.email.includes('admin') ? 'ADMINISTRATEUR' : 'CLIENT' }}
-                    </span>
+                    <select class="admin-select select-sm" [ngModel]="usr.role" (ngModelChange)="updateUserRole(usr, $event)">
+                      <option value="client">CLIENT</option>
+                      <option value="admin">ADMINISTRATEUR</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="action-btn-sm edit" (click)="openEditUserModal(usr)" title="Éditer">
+                        <i class="ph ph-pencil-simple"></i>
+                      </button>
+                      <button class="action-btn-sm delete" (click)="deleteUser(usr)" title="Supprimer">
+                        <i class="ph ph-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -337,6 +364,55 @@ import { UserOrder } from '../../core/models/user.model';
               <button type="button" class="btn-secondary" (click)="closeProductModal()">Annuler</button>
               <button type="submit" class="btn-primary">
                 {{ editMode ? 'Sauvegarder les modifications' : 'Créer le produit' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- MODAL ADD / EDIT USER -->
+      <div class="modal-backdrop" *ngIf="showUserModal" (click)="closeUserModal()">
+        <div class="modal-card glass-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>{{ editUserMode ? 'Modifier l\'utilisateur' : 'Ajouter un nouvel utilisateur' }}</h3>
+            <button class="close-btn" (click)="closeUserModal()"><i class="ph ph-x"></i></button>
+          </div>
+
+          <form (ngSubmit)="saveUser()" class="product-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nom complet *</label>
+                <input type="text" [(ngModel)]="userForm.displayName" name="displayName" required class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>E-mail *</label>
+                <input type="email" [(ngModel)]="userForm.email" name="email" required class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Rôle *</label>
+                <select [(ngModel)]="userForm.role" name="role" required class="form-input">
+                  <option value="client">Client</option>
+                  <option value="admin">Administrateur</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input type="text" [(ngModel)]="userForm.phone" name="phone" class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Adresse</label>
+              <textarea [(ngModel)]="userForm.address" name="address" rows="3" class="form-input"></textarea>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="closeUserModal()">Annuler</button>
+              <button type="submit" class="btn-primary">
+                {{ editUserMode ? 'Sauvegarder' : 'Créer l\'utilisateur' }}
               </button>
             </div>
           </form>
@@ -671,14 +747,27 @@ export class AdminDashboardComponent {
   private productService = inject(ProductService);
   private adminService = inject(AdminService);
   private notify = inject(NotificationService);
+  private router = inject(Router);
 
   activeTab: 'overview' | 'products' | 'orders' | 'users' = 'overview';
   productSearch = '';
+  userSearch = '';
   selectedCategory: CategoryType = 'all';
 
   products = this.productService.allProducts;
   orders = this.adminService.orders;
   users = this.adminService.users;
+
+  showUserModal = false;
+  editUserMode = false;
+  editingUserId = '';
+  userForm = {
+    displayName: '',
+    email: '',
+    role: 'client' as UserRole,
+    phone: '',
+    address: ''
+  };
 
   showProductModal = false;
   editMode = false;
@@ -708,8 +797,93 @@ export class AdminDashboardComponent {
     });
   }
 
+  get filteredUsers(): UserProfile[] {
+    const query = this.userSearch.trim().toLowerCase();
+    if (!query) {
+      return this.users();
+    }
+
+    return this.users().filter(user =>
+      user.displayName.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query) ||
+      user.role.toLowerCase().includes(query)
+    );
+  }
+
   exitAdmin() {
     this.adminService.setAdminView(false);
+    this.router.navigateByUrl('/');
+  }
+
+  openAddUserModal() {
+    this.editUserMode = false;
+    this.editingUserId = '';
+    this.userForm = {
+      displayName: '',
+      email: '',
+      role: 'client',
+      phone: '',
+      address: ''
+    };
+    this.showUserModal = true;
+  }
+
+  openEditUserModal(user: UserProfile) {
+    this.editUserMode = true;
+    this.editingUserId = user.uid;
+    this.userForm = {
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      phone: user.phone || '',
+      address: user.address || ''
+    };
+    this.showUserModal = true;
+  }
+
+  closeUserModal() {
+    this.showUserModal = false;
+  }
+
+  saveUser() {
+    if (!this.userForm.displayName || !this.userForm.email) {
+      this.notify.warning('Champs manquants', 'Veuillez remplir le nom et l\'e-mail.');
+      return;
+    }
+
+    if (this.editUserMode) {
+      this.adminService.updateUser(this.editingUserId, {
+        displayName: this.userForm.displayName,
+        email: this.userForm.email,
+        role: this.userForm.role,
+        phone: this.userForm.phone,
+        address: this.userForm.address
+      });
+      this.notify.success('Utilisateur mis à jour', `${this.userForm.displayName} a été modifié.`);
+    } else {
+      this.adminService.addUser({
+        displayName: this.userForm.displayName,
+        email: this.userForm.email,
+        role: this.userForm.role,
+        phone: this.userForm.phone,
+        address: this.userForm.address
+      });
+      this.notify.success('Utilisateur ajouté', `${this.userForm.displayName} a été créé.`);
+    }
+
+    this.closeUserModal();
+  }
+
+  updateUserRole(user: UserProfile, role: UserRole) {
+    this.adminService.updateUser(user.uid, { role });
+    this.notify.success('Rôle mis à jour', `${user.displayName} est désormais ${this.adminService.getRoleLabel(role).toLowerCase()}.`);
+  }
+
+  deleteUser(user: UserProfile) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${user.displayName}" ?`)) {
+      this.adminService.deleteUser(user.uid);
+      this.notify.info('Utilisateur supprimé', `${user.displayName} a été retiré.`);
+    }
   }
 
   openAddProductModal() {
