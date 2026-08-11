@@ -211,7 +211,12 @@ export class MyOrdersPageComponent {
     const user = this.authService.currentUser();
     if (!user) return [] as UserOrder[];
 
-    return this.adminService.orders().filter(order =>
+    const storedOrders = JSON.parse(localStorage.getItem('aura_orders') || '[]');
+    const allOrders = Array.isArray(storedOrders)
+      ? storedOrders.map(order => this.adminService['normalizeOrder'](order))
+      : this.adminService.orders();
+
+    return allOrders.filter(order =>
       order.userId === user.uid || order.userEmail.toLowerCase() === user.email.toLowerCase()
     ).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   });
@@ -244,6 +249,14 @@ export class MyOrdersPageComponent {
         }
         this.lastStatuses.set(order.id, order.status);
       });
+    });
+
+    window.addEventListener('storage', () => {
+      const list = JSON.parse(localStorage.getItem('aura_client_notifications') || '[]');
+      const last = Array.isArray(list) ? list[list.length - 1] : null;
+      if (last && last.message) {
+        this.notify.info('Commande mise à jour', last.message);
+      }
     });
   }
 
