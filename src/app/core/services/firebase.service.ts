@@ -1,25 +1,24 @@
 import { Injectable, signal } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { 
-  getAuth, 
-  Auth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged, 
+import {
+  getAuth,
+  Auth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
   updateProfile,
   User as FirebaseUser
 } from 'firebase/auth';
-import { 
-  getFirestore, 
-  Firestore, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  collection, 
-  addDoc 
+import {
+  getFirestore,
+  Firestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
 } from 'firebase/firestore';
-import { UserProfile, UserOrder } from '../models/user.model';
+import { UserProfile, UserOrder, UserRole } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -50,6 +49,30 @@ export class FirebaseService {
     }
   }
 
+  private resolveRole(email: string, role?: UserRole): UserRole {
+    if (role) {
+      return role;
+    }
+    const adminEmails = ['admin@auraluxe.com', 'aydiala@gmail.com'];
+    return adminEmails.includes(email.toLowerCase()) || email.toLowerCase().includes('admin') ? 'admin' : 'client';
+  }
+
+  private normalizeUserProfile(profile: Partial<UserProfile>, fallbackEmail = ''): UserProfile {
+    const email = profile.email || fallbackEmail;
+    const displayName = profile.displayName || email.split('@')[0] || 'Client Aura';
+
+    return {
+      uid: profile.uid || 'user_' + Date.now(),
+      email,
+      displayName,
+      role: this.resolveRole(email, profile.role),
+      photoURL: profile.photoURL || '',
+      createdAt: profile.createdAt || new Date().toISOString(),
+      phone: profile.phone,
+      address: profile.address
+    };
+  }
+
   private listenToAuthChanges() {
     if (!this.auth) {
       this.loadStoredUser();
@@ -59,14 +82,17 @@ export class FirebaseService {
       if (user) {
         let profile = await this.getUserProfile(user.uid);
         if (!profile) {
-          profile = {
+          profile = this.normalizeUserProfile({
             uid: user.uid,
             email: user.email || '',
             displayName: user.displayName || user.email?.split('@')[0] || 'Client Aura',
+            role: this.resolveRole(user.email || '', user.email?.toLowerCase().includes('admin') ? 'admin' : 'client'),
             photoURL: user.photoURL || '',
             createdAt: new Date().toISOString()
-          };
+          }, user.email || '');
           await this.saveUserProfile(profile);
+        } else {
+          profile = this.normalizeUserProfile(profile, user.email || '');
         }
         this.currentUser.set(profile);
         localStorage.setItem('aura_user', JSON.stringify(profile));
@@ -101,12 +127,13 @@ export class FirebaseService {
         const res = await createUserWithEmailAndPassword(this.auth, email, pass);
         if (res.user) {
           await updateProfile(res.user, { displayName: name });
-          const userProfile: UserProfile = {
+          const userProfile = this.normalizeUserProfile({
             uid: res.user.uid,
             email: res.user.email || email,
             displayName: name,
+            role: 'client',
             createdAt: new Date().toISOString()
-          };
+          }, email);
           await this.saveUserProfile(userProfile);
           this.currentUser.set(userProfile);
           localStorage.setItem('aura_user', JSON.stringify(userProfile));
@@ -114,7 +141,7 @@ export class FirebaseService {
         }
       } catch (err: any) {
         console.error('Firebase Auth SignUp Error:', err);
-        
+
         // Si l'erreur est auth/operation-not-allowed ou clé invalide
         if (err.code === 'auth/operation-not-allowed') {
           // Créer l'utilisateur localement pour ne pas bloquer l'expérience et informer
@@ -144,17 +171,21 @@ export class FirebaseService {
     if (!isApiKeyPlaceholder && this.auth) {
       try {
         const res = await signInWithEmailAndPassword(this.auth, email, pass);
-        const profile = await this.getUserProfile(res.user.uid) || {
+        const profile = this.normalizeUserProfile(await this.getUserProfile(res.user.uid) || {
           uid: res.user.uid,
           email: res.user.email || email,
           displayName: res.user.displayName || email.split('@')[0],
+          role: this.resolveRole(res.user.email || email),
           createdAt: new Date().toISOString()
-        };
+        }, email);
         this.currentUser.set(profile);
         localStorage.setItem('aura_user', JSON.stringify(profile));
         return profile;
       } catch (err: any) {
         console.error('Firebase Auth SignIn Error:', err);
+        if (this.isDemoAdminCredentials(email, pass)) {
+          return this.loginMockUser(email);
+        }
         if (this.isNetworkOrKeyError(err)) {
           return this.loginMockUser(email);
         }
@@ -168,12 +199,13 @@ export class FirebaseService {
   }
 
   private createMockUser(email: string, name: string): UserProfile {
-    const mockUser: UserProfile = {
+    const mockUser = this.normalizeUserProfile({
       uid: 'user_' + Date.now(),
       email: email,
       displayName: name,
+      role: 'client',
       createdAt: new Date().toISOString()
-    };
+    }, email);
     this.currentUser.set(mockUser);
     localStorage.setItem('aura_user', JSON.stringify(mockUser));
     return mockUser;
@@ -181,12 +213,13 @@ export class FirebaseService {
 
   private loginMockUser(email: string): UserProfile {
     const displayName = email.split('@')[0];
-    const mockUser: UserProfile = {
+    const mockUser = this.normalizeUserProfile({
       uid: 'user_' + Date.now(),
       email: email,
       displayName: displayName.charAt(0).toUpperCase() + displayName.slice(1),
+      role: this.resolveRole(email),
       createdAt: new Date().toISOString()
-    };
+    }, email);
     this.currentUser.set(mockUser);
     localStorage.setItem('aura_user', JSON.stringify(mockUser));
     return mockUser;
@@ -196,11 +229,15 @@ export class FirebaseService {
     if (!err) return false;
     const code = err.code || '';
     const msg = err.message || '';
-    return code === 'auth/api-key-not-valid' || 
-           code === 'auth/invalid-api-key' || 
+    return code === 'auth/api-key-not-valid' ||
+           code === 'auth/invalid-api-key' ||
            code === 'auth/network-request-failed' ||
            msg.includes('API key') ||
            msg.includes('network');
+  }
+
+  private isDemoAdminCredentials(email: string, pass: string): boolean {
+    return email.toLowerCase() === 'aydiala@gmail.com' && pass === '12345678';
   }
 
   async logout(): Promise<void> {
@@ -214,10 +251,11 @@ export class FirebaseService {
   }
 
   async saveUserProfile(profile: UserProfile): Promise<void> {
+    const normalized = this.normalizeUserProfile(profile, profile.email);
     if (this.db) {
       try {
-        const userRef = doc(this.db, 'users', profile.uid);
-        await setDoc(userRef, profile, { merge: true });
+        const userRef = doc(this.db, 'users', normalized.uid);
+        await setDoc(userRef, normalized, { merge: true });
       } catch (e) {}
     }
   }
@@ -228,7 +266,7 @@ export class FirebaseService {
         const userRef = doc(this.db, 'users', uid);
         const snap = await getDoc(userRef);
         if (snap.exists()) {
-          return snap.data() as UserProfile;
+          return this.normalizeUserProfile(snap.data() as Partial<UserProfile>);
         }
       } catch (e) {}
     }
@@ -239,13 +277,17 @@ export class FirebaseService {
     const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     const fullOrder: UserOrder = {
       ...orderData,
-      id: orderId
+      id: orderId,
+      statusUpdatedAt: new Date().toISOString(),
+      statusHistory: orderData.statusHistory?.length
+        ? orderData.statusHistory
+        : [{ status: orderData.status, at: new Date().toISOString() }]
     };
 
     if (this.db) {
       try {
-        const ordersRef = collection(this.db, 'orders');
-        await addDoc(ordersRef, fullOrder);
+        const ordersRef = doc(this.db, 'orders', orderId);
+        await setDoc(ordersRef, fullOrder, { merge: true });
       } catch (e) {}
     }
 
@@ -256,6 +298,32 @@ export class FirebaseService {
     } catch (e) {}
 
     return orderId;
+  }
+
+  async updateOrderStatus(orderId: string, newStatus: UserOrder['status']): Promise<void> {
+    const currentOrders = JSON.parse(localStorage.getItem('aura_orders') || '[]');
+    const updatedOrders = Array.isArray(currentOrders)
+      ? currentOrders.map((order: UserOrder) => order.id === orderId ? {
+          ...order,
+          status: newStatus,
+          statusUpdatedAt: new Date().toISOString(),
+          statusHistory: [
+            ...(order.statusHistory || [{ status: order.status, at: order.statusUpdatedAt || order.createdAt }]),
+            { status: newStatus, at: new Date().toISOString() }
+          ]
+        } : order)
+      : [];
+
+    localStorage.setItem('aura_orders', JSON.stringify(updatedOrders));
+
+    if (this.db) {
+      try {
+        await setDoc(doc(this.db, 'orders', orderId), {
+          status: newStatus,
+          statusUpdatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (e) {}
+    }
   }
 
   async syncWishlist(uid: string, wishlistIds: string[]): Promise<void> {
