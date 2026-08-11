@@ -57,6 +57,7 @@ export class AuthService {
   async register(email: string, pass: string, name: string): Promise<boolean> {
     try {
       const user = await this.firebaseService.signUp(email, pass, name);
+      await this.firebaseService.logout();
       this.adminService.setAdminView(false);
       this.closeModal();
       this.registeredUserNameSignal.set(user.displayName || name);
