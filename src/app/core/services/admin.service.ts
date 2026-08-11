@@ -22,6 +22,7 @@ export class AdminService {
   private orderEmailService = inject(OrderEmailService);
 
   constructor() {
+    this.ensureDefaultAdminUser();
     this.loadOrdersAndUsers();
     window.addEventListener('storage', () => this.loadOrdersAndUsers());
     effect(() => {
@@ -46,6 +47,29 @@ export class AdminService {
       this.ordersSignal.set(Array.isArray(storedOrders) ? storedOrders.map(order => this.normalizeOrder(order)) : []);
       this.usersSignal.set(this.loadUsersFromStorage());
     } catch (e) {}
+  }
+
+  private ensureDefaultAdminUser() {
+    const defaultAdmin: UserProfile = {
+      uid: 'user_admin_1',
+      email: 'admin@auraluxe.com',
+      displayName: 'Administrateur Principal',
+      role: 'admin',
+      createdAt: '2026-01-10T10:00:00.000Z'
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem(this.usersStorageKey) || '[]');
+      const list = Array.isArray(existing) ? existing : [];
+      const adminExists = list.some((user: Partial<UserProfile>) => (user.email || '').toLowerCase() === defaultAdmin.email.toLowerCase());
+
+      if (!adminExists) {
+        const next = [defaultAdmin, ...list];
+        localStorage.setItem(this.usersStorageKey, JSON.stringify(next));
+      }
+    } catch (e) {
+      localStorage.setItem(this.usersStorageKey, JSON.stringify([defaultAdmin]));
+    }
   }
 
   private normalizeOrder(order: Partial<UserOrder>): UserOrder {
@@ -185,6 +209,16 @@ export class AdminService {
     return role === 'admin' ? 'ADMINISTRATEUR' : 'CLIENT';
   }
 
+  getStatusLabel(status: UserOrder['status']): string {
+    switch (status) {
+      case 'confirmed': return 'Confirmée';
+      case 'processing': return 'En préparation';
+      case 'shipped': return 'Expédiée';
+      case 'delivered': return 'Livrée';
+      default: return status;
+    }
+  }
+
   updateOrderStatus(orderId: string, newStatus: UserOrder['status']) {
     const updatedAt = new Date().toISOString();
     let updatedOrder: UserOrder | null = null;
@@ -206,17 +240,38 @@ export class AdminService {
         return updatedOrder;
       })
     );
+
     try {
-      localStorage.setItem('aura_orders', JSON.stringify(this.ordersSignal()));
+      const nextOrders = this.ordersSignal();
+      localStorage.setItem('aura_orders', JSON.stringify(nextOrders));
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'aura_orders',
+        newValue: JSON.stringify(nextOrders)
+      }));
     } catch (e) {}
+
     this.firebaseService.updateOrderStatus(orderId, newStatus).catch(() => {});
+
     if (updatedOrder) {
       this.orderEmailService.sendStatusUpdateEmail(updatedOrder).then(sent => {
         if (sent) {
           this.notify.info('Email envoyé', `Le client ${updatedOrder?.userEmail} a reçu la mise à jour de sa commande.`);
         }
       });
+
+      const notification = {
+        id: `order-${orderId}-${Date.now()}`,
+        title: 'Commande mise à jour',
+        message: `Votre commande ${orderId} est maintenant ${this.getStatusLabel(newStatus).toLowerCase()}.`,
+        createdAt: new Date().toISOString()
+      };
+
+      const existingNotifications = JSON.parse(localStorage.getItem('aura_client_notifications') || '[]');
+      const list = Array.isArray(existingNotifications) ? existingNotifications : [];
+      list.push(notification);
+      localStorage.setItem('aura_client_notifications', JSON.stringify(list));
     }
+
     this.notify.success('Statut mis à jour ! 🚚', `La commande ${orderId} est désormais "${newStatus}".`);
   }
 }
