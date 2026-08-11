@@ -135,8 +135,6 @@ export class FirebaseService {
             createdAt: new Date().toISOString()
           }, email);
           await this.saveUserProfile(userProfile);
-          this.currentUser.set(userProfile);
-          localStorage.setItem('aura_user', JSON.stringify(userProfile));
           return userProfile;
         }
       } catch (err: any) {
