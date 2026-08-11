@@ -7,19 +7,15 @@ import { WishlistService } from '../../../core/services/wishlist.service';
 import { ProductService } from '../../../core/services/product.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminService } from '../../../core/services/admin.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, SearchBarComponent, CategoryNavComponent],
   template: `
-    <div class="announcement-bar">
-      <div class="container-xl ann-content">
-        <span class="ann-badge">Nouveau</span>
-        <p class="ann-text">⚡ Édition Spéciale Light Lux : <strong>-10% extra</strong> avec le code <span class="coupon-code">AURA10</span></p>
-        <span class="ann-link">Livraison offerte dès 150€</span>
-      </div>
-    </div>
+
 
     <header class="main-header" [class.is-scrolled]="isScrolled">
       <div class="container-xl header-inner">
@@ -55,10 +51,10 @@ import { AdminService } from '../../../core/services/admin.service';
 
           <!-- User Account Badge / Dropdown -->
           <div class="user-menu-wrapper">
-            <button 
-              class="action-btn user-profile-badge" 
+            <button
+              class="action-btn user-profile-badge"
               [class.user-logged]="isLoggedIn()"
-              (click)="handleUserClick()" 
+              (click)="handleUserClick()"
               title="Mon Compte / Admin"
             >
               <i class="ph" [class.ph-user]="!isLoggedIn()" [class.ph-user-check]="isLoggedIn()"></i>
@@ -71,8 +67,11 @@ import { AdminService } from '../../../core/services/admin.service';
                 <span class="user-email">{{ currentUser()?.email }}</span>
               </div>
               <div class="dropdown-divider"></div>
-              <button class="dropdown-item admin-item" (click)="openAdmin(); showUserMenu = false;">
+              <button *ngIf="currentUser()?.role === 'admin'" class="dropdown-item admin-item" (click)="openAdmin(); showUserMenu = false;">
                 <i class="ph ph-shield-check"></i> Espace Administration
+              </button>
+              <button class="dropdown-item" (click)="openOrders(); showUserMenu = false;">
+                <i class="ph ph-receipt"></i> Mes Commandes
               </button>
               <button class="dropdown-item" (click)="openWishlist(); showUserMenu = false;">
                 <i class="ph ph-heart"></i> Mes Favoris ({{ wishlistCount() }})
@@ -132,7 +131,7 @@ import { AdminService } from '../../../core/services/admin.service';
       font-weight: 600;
       opacity: 0.9;
     }
-    
+
     .main-header {
       position: sticky;
       top: 0;
@@ -351,6 +350,8 @@ export class HeaderComponent {
   private productService = inject(ProductService);
   private authService = inject(AuthService);
   private adminService = inject(AdminService);
+  private notify = inject(NotificationService);
+  private router = inject(Router);
 
   isScrolled = false;
   showUserMenu = false;
@@ -385,14 +386,23 @@ export class HeaderComponent {
     if (this.isLoggedIn()) {
       this.showUserMenu = !this.showUserMenu;
     } else {
-      this.authService.openModal('login');
+      this.router.navigateByUrl('/login');
     }
   }
 
   openAdmin() {
+    if (this.currentUser()?.role !== 'admin') {
+      this.notify.warning('Accès refusé', 'Ce compte n\'a pas les droits administrateur.');
+      return;
+    }
     this.showUserMenu = false;
     this.adminService.setAdminView(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.router.navigateByUrl('/admin');
+  }
+
+  openOrders() {
+    this.showUserMenu = false;
+    this.router.navigateByUrl('/orders');
   }
 
   logout() {
@@ -405,5 +415,6 @@ export class HeaderComponent {
     this.adminService.setAdminView(false);
     this.productService.setSelectedProduct(null);
     this.productService.resetFilters();
+    this.router.navigateByUrl('/');
   }
 }
