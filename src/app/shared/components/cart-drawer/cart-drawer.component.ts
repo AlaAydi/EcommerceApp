@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../core/services/cart.service';
 import { CartItemComponent } from '../cart-item/cart-item.component';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart-drawer',
@@ -68,7 +70,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
           </div>
 
           <div *ngIf="items().length > 0" class="items-list">
-            <app-cart-item 
+            <app-cart-item
               *ngFor="let item of items(); let i = index"
               [item]="item"
               [index]="i"
@@ -80,10 +82,10 @@ import { trigger, transition, style, animate } from '@angular/animations';
         <div *ngIf="items().length > 0" class="drawer-footer">
           <div class="coupon-section">
             <div *ngIf="!activeCoupon()" class="coupon-input-row">
-              <input 
-                type="text" 
-                [(ngModel)]="couponCode" 
-                placeholder="Code Promo (ex: AURA10)" 
+              <input
+                type="text"
+                [(ngModel)]="couponCode"
+                placeholder="Code Promo (ex: AURA10)"
                 class="coupon-input"
               />
               <button class="coupon-apply-btn" (click)="applyCoupon()">Appliquer</button>
@@ -342,6 +344,8 @@ import { trigger, transition, style, animate } from '@angular/animations';
 })
 export class CartDrawerComponent {
   private cartService = inject(CartService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   isOpen = this.cartService.isOpen;
   items = this.cartService.items;
@@ -377,6 +381,12 @@ export class CartDrawerComponent {
   }
 
   goCheckout() {
+    if (!this.authService.currentUser()) {
+      this.close();
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/?checkout=1' } });
+      return;
+    }
+
     this.close();
     window.dispatchEvent(new CustomEvent('openCheckout'));
   }
