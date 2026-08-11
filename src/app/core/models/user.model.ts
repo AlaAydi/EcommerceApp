@@ -1,7 +1,10 @@
+export type UserRole = 'admin' | 'client';
+
 export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
+  role: UserRole;
   photoURL?: string;
   createdAt?: string;
   phone?: string;
@@ -37,5 +40,10 @@ export interface UserOrder {
   shippingFee: number;
   grandTotal: number;
   status: 'confirmed' | 'processing' | 'shipped' | 'delivered';
+  statusUpdatedAt?: string;
+  statusHistory?: Array<{
+    status: 'confirmed' | 'processing' | 'shipped' | 'delivered';
+    at: string;
+  }>;
   createdAt: string;
 }
