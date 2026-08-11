@@ -1,13 +1,14 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { FirebaseService } from './firebase.service';
+import { AdminService } from './admin.service';
 import { NotificationService } from './notification.service';
-import { UserProfile } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private firebaseService = inject(FirebaseService);
+  private adminService = inject(AdminService);
   private notify = inject(NotificationService);
 
   private isModalOpenSignal = signal<boolean>(false);
@@ -43,6 +44,7 @@ export class AuthService {
   async login(email: string, pass: string): Promise<boolean> {
     try {
       const user = await this.firebaseService.signIn(email, pass);
+      this.adminService.setAdminView(user.role === 'admin');
       this.notify.success('Bienvenue ! 👋', `Ravi de vous revoir, ${user.displayName}.`);
       this.closeModal();
       return true;
@@ -55,6 +57,7 @@ export class AuthService {
   async register(email: string, pass: string, name: string): Promise<boolean> {
     try {
       const user = await this.firebaseService.signUp(email, pass, name);
+      this.adminService.setAdminView(false);
       this.closeModal();
       this.registeredUserNameSignal.set(user.displayName || name);
       this.isRegisterSuccessSignal.set(true);
@@ -67,6 +70,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     await this.firebaseService.logout();
+    this.adminService.setAdminView(false);
     this.notify.info('Déconnexion', 'Vous avez été déconnecté de votre compte.');
   }
 }
