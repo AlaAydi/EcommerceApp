@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CartService } from '../../core/services/cart.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { FirebaseService } from '../../core/services/firebase.service';
+import { Router } from '@angular/router';
 import { CheckoutDetails } from '../../core/models/cart.model';
 import { CheckoutStepperComponent } from './checkout-stepper/checkout-stepper.component';
 import { CreditCardPreviewComponent } from './credit-card-preview/credit-card-preview.component';
@@ -13,10 +14,10 @@ import { OrderSuccessModalComponent } from './order-success-modal/order-success-
   selector: 'app-checkout',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    CheckoutStepperComponent, 
-    CreditCardPreviewComponent, 
+    CommonModule,
+    FormsModule,
+    CheckoutStepperComponent,
+    CreditCardPreviewComponent,
     OrderSuccessModalComponent
   ],
   templateUrl: './checkout.component.html',
@@ -29,6 +30,7 @@ export class CheckoutComponent implements OnInit {
   private cartService = inject(CartService);
   private notify = inject(NotificationService);
   private firebaseService = inject(FirebaseService);
+  private router = inject(Router);
 
   step = 1;
   isCvcFocused = false;
@@ -76,11 +78,9 @@ export class CheckoutComponent implements OnInit {
   }
 
   goToStep(newStep: number) {
-    if (newStep === 2) {
-      if (!this.details.firstName || !this.details.email || !this.details.address) {
-        this.notify.warning('Champs requis', 'Veuillez remplir votre prénom, e-mail et adresse de livraison.');
-        return;
-      }
+    if (newStep === 2 && (!this.details.firstName || !this.details.email || !this.details.address)) {
+      this.notify.warning('Champs requis', 'Veuillez remplir votre prénom, e-mail et adresse de livraison.');
+      return;
     }
     this.step = newStep;
   }
@@ -88,17 +88,21 @@ export class CheckoutComponent implements OnInit {
   async submitOrder() {
     if (this.isSubmitting) return;
 
-    if (this.details.paymentMethod === 'card') {
-      if (!this.details.cardNumber || !this.details.cardExpiry || !this.details.cardCvc) {
-        this.notify.warning('Paiement incomplet', 'Veuillez renseigner vos identifiants de carte bancaire.');
-        return;
-      }
+    const user = this.firebaseService.currentUser();
+    if (!user) {
+      this.notify.warning('Compte requis', 'Inscrivez-vous ou connectez-vous avant de payer.');
+      await this.router.navigate(['/login'], { queryParams: { returnUrl: '/?checkout=1' } });
+      return;
+    }
+
+    if (this.details.paymentMethod === 'card' && (!this.details.cardNumber || !this.details.cardExpiry || !this.details.cardCvc)) {
+      this.notify.warning('Paiement incomplet', 'Veuillez renseigner vos identifiants de carte bancaire.');
+      return;
     }
 
     this.isSubmitting = true;
 
     try {
-      const user = this.firebaseService.currentUser();
       const orderPayload = {
         userId: user?.uid || 'guest_' + Date.now(),
         userEmail: this.details.email,
@@ -127,6 +131,7 @@ export class CheckoutComponent implements OnInit {
         shippingFee: this.shippingFee(),
         grandTotal: this.grandTotal(),
         status: 'confirmed' as const,
+        statusHistory: [{ status: 'confirmed' as const, at: new Date().toISOString() }],
         createdAt: new Date().toISOString()
       };
 
