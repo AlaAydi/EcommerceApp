@@ -1,10 +1,21 @@
 .hero-banner-container {
   position: relative;
-  padding: 3rem 0 4rem;
+  padding: 4rem 0 4.5rem;
   overflow: hidden;
 }
 
+.hero-banner-container::before {
+  content: "";
+  position: absolute;
+  inset: 18px 0 auto 0;
+  height: 420px;
+  background: linear-gradient(135deg, rgba(90, 74, 230, 0.10), rgba(255, 255, 255, 0), rgba(217, 119, 6, 0.08));
+  z-index: 0;
+}
+
 .hero-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 3rem;
@@ -14,7 +25,7 @@
 .hero-text-content {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.35rem;
 }
 
 .hero-chip {
@@ -24,29 +35,31 @@
 }
 
 .chip-text {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .hero-title {
-  font-size: 3rem;
-  line-height: 1.15;
+  font-size: clamp(2.8rem, 4vw, 5rem);
+  line-height: 0.98;
   color: var(--text-main);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.05em;
 }
 
 .highlight-gradient {
-  background: var(--accent-gradient);
+  background: linear-gradient(135deg, #17141c 0%, #5a4ae6 35%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-  font-size: 1.05rem;
+  font-size: 1.06rem;
   color: var(--text-muted);
-  line-height: 1.65;
-  max-width: 540px;
+  line-height: 1.75;
+  max-width: 560px;
 }
 
 .hero-cta-group {
@@ -57,8 +70,9 @@
 }
 
 .hero-btn {
-  padding: 0.85rem 1.8rem;
+  padding: 0.95rem 1.8rem;
   font-size: 1rem;
+  box-shadow: 0 14px 28px rgba(90, 74, 230, 0.22);
 }
 
 .hero-stats {
@@ -76,7 +90,7 @@
 }
 
 .stat-number {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-main);
 }
@@ -88,11 +102,10 @@
 
 .stat-divider {
   width: 1px;
-  height: 32px;
+  height: 34px;
   background: var(--border-light);
 }
 
-/* Showcase Card */
 .hero-showcase {
   position: relative;
   display: flex;
@@ -102,12 +115,14 @@
 .showcase-card {
   position: relative;
   width: 100%;
-  max-width: 420px;
+  max-width: 430px;
   padding: 1.25rem;
   z-index: 2;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.88);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
   box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(90, 74, 230, 0.08);
+  transform: perspective(1200px) rotateY(-8deg) rotateX(2deg);
 }
 
 .showcase-badge {
@@ -116,25 +131,28 @@
   right: 24px;
   background: var(--accent-gradient);
   color: white;
-  padding: 0.25rem 0.75rem;
+  padding: 0.28rem 0.8rem;
   border-radius: var(--radius-full);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
   z-index: 3;
+  box-shadow: 0 12px 24px rgba(90, 74, 230, 0.22);
 }
 
 .showcase-img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  border-radius: var(--radius-md);
+  border-radius: 18px;
   margin-bottom: 1rem;
+  box-shadow: 0 18px 30px rgba(17, 12, 28, 0.14);
 }
 
 .showcase-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .showcase-cat {
@@ -142,10 +160,11 @@
   font-weight: 800;
   color: var(--accent-primary);
   text-transform: uppercase;
+  letter-spacing: 0.09em;
 }
 
 .showcase-name {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
   margin-top: 0.15rem;
@@ -158,27 +177,27 @@
 }
 
 .showcase-price {
-  font-size: 1.2rem;
+  font-size: 1.26rem;
   font-weight: 800;
   color: var(--text-main);
 }
 
 .showcase-buy-btn {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-full);
   background: var(--accent-gradient);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  font-size: 1.18rem;
+  box-shadow: 0 10px 20px rgba(90, 74, 230, 0.22);
   transition: transform var(--transition-fast);
 }
 
 .showcase-buy-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(-2px);
 }
 
 .ambient-glow {
@@ -186,22 +205,22 @@
   border-radius: 50%;
   filter: blur(80px);
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .glow-1 {
-  width: 250px;
-  height: 250px;
-  background: rgba(79, 70, 229, 0.2);
+  width: 260px;
+  height: 260px;
+  background: rgba(90, 74, 230, 0.22);
   top: -20px;
   right: 0;
 }
 
 .glow-2 {
-  width: 200px;
-  height: 200px;
-  background: rgba(16, 185, 129, 0.15);
-  bottom: -20px;
+  width: 220px;
+  height: 220px;
+  background: rgba(217, 119, 6, 0.18);
+  bottom: -30px;
   left: 20px;
 }
 
@@ -210,7 +229,8 @@
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  .hero-title {
-    font-size: 2.2rem;
+
+  .showcase-card {
+    transform: none;
   }
 }
