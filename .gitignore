@@ -38,10 +38,10 @@ testem.log
 /typings
 
 # Environment & Secrets
-/src/environments/environment.ts
-/src/environments/environment.development.ts
 .env
 .env.local
+.env.*
+!/.env.example
 
 # System files
 .DS_Store
