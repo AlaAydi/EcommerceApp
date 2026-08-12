@@ -11,17 +11,17 @@ import { ProductService } from '../../../core/services/product.service';
   standalone: true,
   imports: [CommonModule, StarRatingComponent],
   template: `
-    <div 
-      class="product-card glass-card" 
-      (mouseenter)="isHovered = true" 
+    <div
+      class="product-card glass-card"
+      (mouseenter)="isHovered = true"
       (mouseleave)="isHovered = false"
       (click)="viewDetails()"
     >
       <!-- Card Image Thumbnail Container -->
       <div class="card-image-wrapper">
-        <img 
-          [src]="isHovered && product.images.length > 1 ? product.images[1] : product.images[0]" 
-          [alt]="product.name" 
+        <img
+          [src]="isHovered && product.images.length > 1 ? product.images[1] : product.images[0]"
+          [alt]="product.name"
           class="card-image"
         />
 
@@ -39,9 +39,9 @@ import { ProductService } from '../../../core/services/product.service';
         </div>
 
         <!-- Wishlist Button -->
-        <button 
-          class="wishlist-btn" 
-          [class.active]="isWishlisted()" 
+        <button
+          class="wishlist-btn"
+          [class.active]="isWishlisted()"
           (click)="$event.stopPropagation(); toggleWishlist()"
           title="Ajouter aux favoris"
         >
@@ -59,7 +59,7 @@ import { ProductService } from '../../../core/services/product.service';
       <!-- Card Body Content -->
       <div class="card-body">
         <div class="card-category">{{ product.category | uppercase }}</div>
-        
+
         <h3 class="card-title">{{ product.name }}</h3>
         <p class="card-subtitle">{{ product.subtitle }}</p>
 
@@ -77,9 +77,9 @@ import { ProductService } from '../../../core/services/product.service';
             </span>
           </div>
 
-          <button 
-            class="add-cart-btn" 
-            (click)="$event.stopPropagation(); addToCart()" 
+          <button
+            class="add-cart-btn"
+            (click)="$event.stopPropagation(); addToCart()"
             title="Ajouter au Panier"
           >
             <i class="ph ph-shopping-bag-open"></i>
@@ -94,17 +94,18 @@ import { ProductService } from '../../../core/services/product.service';
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: var(--bg-surface);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,247,244,0.96));
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
+      border-radius: 26px;
       overflow: hidden;
       cursor: pointer;
       transition: all var(--transition-bounce);
+      box-shadow: var(--shadow-sm);
     }
     .product-card:hover {
-      transform: translateY(-8px);
+      transform: translateY(-10px);
       box-shadow: var(--shadow-xl);
-      border-color: rgba(79, 70, 229, 0.25);
+      border-color: rgba(90, 74, 230, 0.22);
     }
 
     .card-image-wrapper {
@@ -112,16 +113,16 @@ import { ProductService } from '../../../core/services/product.service';
       width: 100%;
       aspect-ratio: 4 / 3;
       overflow: hidden;
-      background: var(--bg-surface-secondary);
+      background: linear-gradient(135deg, #f5f1ff, #fffaf3);
     }
     .card-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+      transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     .product-card:hover .card-image {
-      transform: scale(1.06);
+      transform: scale(1.08);
     }
 
     .card-badges {
@@ -138,10 +139,10 @@ import { ProductService } from '../../../core/services/product.service';
       position: absolute;
       top: 12px;
       right: 12px;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border-light);
       color: var(--text-muted);
@@ -151,11 +152,12 @@ import { ProductService } from '../../../core/services/product.service';
       font-size: 1.1rem;
       z-index: 5;
       transition: all var(--transition-normal);
+      box-shadow: var(--shadow-sm);
     }
     .wishlist-btn:hover {
       background: white;
       color: var(--accent-rose);
-      transform: scale(1.1);
+      transform: scale(1.12);
     }
     .wishlist-btn.active {
       background: var(--accent-rose-light);
@@ -166,7 +168,7 @@ import { ProductService } from '../../../core/services/product.service';
     .card-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(15, 23, 42, 0.2);
+      background: rgba(17, 12, 28, 0.22);
       backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
@@ -184,15 +186,15 @@ import { ProductService } from '../../../core/services/product.service';
     .btn-quick-view {
       background: white;
       color: var(--text-main);
-      padding: 0.6rem 1.2rem;
+      padding: 0.7rem 1.25rem;
       border-radius: var(--radius-full);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       box-shadow: var(--shadow-md);
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      transform: translateY(10px);
+      transform: translateY(12px);
       transition: all var(--transition-normal);
     }
     .card-overlay.show .btn-quick-view {
@@ -204,7 +206,7 @@ import { ProductService } from '../../../core/services/product.service';
     }
 
     .card-body {
-      padding: 1.25rem;
+      padding: 1.1rem 1.1rem 1.2rem;
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -213,10 +215,11 @@ import { ProductService } from '../../../core/services/product.service';
     .card-category {
       font-size: 0.68rem;
       font-weight: 800;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--accent-primary);
       margin-bottom: 0.35rem;
     }
+
 
     .card-title {
       font-size: 1rem;
