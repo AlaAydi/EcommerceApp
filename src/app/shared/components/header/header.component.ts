@@ -136,15 +136,16 @@ import { Router } from '@angular/router';
       position: sticky;
       top: 0;
       z-index: 90;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-light);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(90, 74, 230, 0.08);
       transition: all var(--transition-normal);
+      box-shadow: 0 4px 20px rgba(17, 12, 28, 0.03);
     }
     .main-header.is-scrolled {
       box-shadow: var(--shadow-md);
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.88);
     }
 
     .header-inner {
@@ -152,8 +153,8 @@ import { Router } from '@angular/router';
       align-items: center;
       justify-content: space-between;
       gap: 1.5rem;
-      padding-top: 0.85rem;
-      padding-bottom: 0.85rem;
+      padding-top: 0.95rem;
+      padding-bottom: 0.95rem;
     }
 
     .brand-logo {
@@ -161,26 +162,28 @@ import { Router } from '@angular/router';
       align-items: baseline;
       gap: 0.25rem;
       position: relative;
+      padding: 0.2rem 0.2rem 0.2rem 0;
     }
     .brand-name {
-      font-size: 1.65rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
+      font-size: 1.7rem;
+      font-weight: 900;
+      letter-spacing: 0.11em;
       color: var(--text-main);
     }
     .brand-sub {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
-      letter-spacing: 0.25em;
+      letter-spacing: 0.28em;
       color: var(--accent-primary);
     }
     .brand-dot {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: var(--accent-emerald);
+      background: linear-gradient(135deg, #5a4ae6, #d97706);
       display: inline-block;
-      margin-left: 2px;
+      margin-left: 4px;
+      box-shadow: 0 0 16px rgba(90, 74, 230, 0.45);
     }
 
     .header-search {
@@ -197,10 +200,10 @@ import { Router } from '@angular/router';
 
     .action-btn {
       position: relative;
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: var(--radius-full);
-      background: var(--bg-surface);
+      background: rgba(255,255,255,0.88);
       border: 1px solid var(--border-light);
       display: flex;
       align-items: center;
@@ -214,8 +217,9 @@ import { Router } from '@angular/router';
     .action-btn:hover {
       background: var(--accent-primary-light);
       color: var(--accent-primary);
-      border-color: rgba(79, 70, 229, 0.3);
+      border-color: rgba(90, 74, 230, 0.25);
       transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
     }
 
     .action-btn.user-logged {
